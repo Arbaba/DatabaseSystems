@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM order_small WHERE col0 = 6;

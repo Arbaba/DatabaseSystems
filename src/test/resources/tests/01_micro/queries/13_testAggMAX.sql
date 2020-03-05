@@ -1,0 +1,1 @@
+select MAX(col1) from order_small;

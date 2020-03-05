@@ -1,0 +1,1 @@
+select COUNT(*) from order_small;

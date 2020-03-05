@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM data WHERE col3 = 6;

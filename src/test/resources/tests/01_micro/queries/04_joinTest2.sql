@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM lineitem_small JOIN order_small ON (order_small.col0 = lineitem_small.col0) WHERE lineitem_small.col0 = 3;

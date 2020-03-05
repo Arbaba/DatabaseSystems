@@ -1,0 +1,1 @@
+select COUNT(*) from empty_table where col3 < 8;

@@ -1,0 +1,1 @@
+select AVG(col1) from order_small;

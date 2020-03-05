@@ -1,0 +1,1 @@
+select SUM(col1) from order_small;

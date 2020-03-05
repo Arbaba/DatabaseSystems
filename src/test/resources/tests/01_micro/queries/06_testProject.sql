@@ -1,0 +1,1 @@
+select col8, col9 from data;

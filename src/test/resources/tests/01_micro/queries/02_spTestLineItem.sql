@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM lineitem_small WHERE col0 = 3;

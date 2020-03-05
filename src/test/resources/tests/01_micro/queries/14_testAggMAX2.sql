@@ -1,0 +1,1 @@
+select MAX(col8) from data;

@@ -1,0 +1,1 @@
+select COUNT(*) from data where col7 <= 8;

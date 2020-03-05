@@ -1,0 +1,1 @@
+select * from order_small d1, order_small d2 where d1.col0 = d2.col0;

@@ -1,0 +1,1 @@
+select COUNT(*) from empty_table e, data d where e.col0 = d.col0;

@@ -1,0 +1,1 @@
+select MIN(col3) from order_small;
