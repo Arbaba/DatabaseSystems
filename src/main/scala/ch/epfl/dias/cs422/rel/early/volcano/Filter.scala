@@ -17,7 +17,7 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
         case true => t
         case _ => next()
       }
-      case _ => next()
+      case null => null
     }
   }
 
