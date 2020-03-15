@@ -9,11 +9,15 @@ import org.apache.calcite.rex.RexNode
 import scala.jdk.CollectionConverters._
 
 class Project protected (input: Operator, projects: java.util.List[_ <: RexNode], rowType: RelDataType) extends skeleton.Project[Operator](input, projects, rowType) with Operator {
-  override def open(): Unit = ???
+  override def open(): Unit = input.open()
 
   lazy val evaluator: Tuple => Tuple = eval(projects.asScala.toIndexedSeq, input.getRowType)
 
-  override def next(): Tuple = ???
+  override def next(): Tuple = input.next() match {
+    case null => null
+    case x => evaluator(x)
+  }
 
-  override def close(): Unit = ???
+  override def close(): Unit = input.close()
+
 }
