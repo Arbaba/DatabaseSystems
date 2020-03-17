@@ -25,7 +25,7 @@ class Wrapper (tuple: Tuple, collation: RelCollation) extends Ordered[Wrapper]{
         case Direction.ASCENDING =>
           a.compareTo(b)
         case Direction.DESCENDING =>
-          a.compareTo(b) * (-1)
+          b.compareTo(a)
         case Direction.STRICTLY_DESCENDING =>
           ???
         case Direction.STRICTLY_ASCENDING =>
@@ -44,20 +44,32 @@ object Wrapper{
 
 
 class Sort protected (input: Operator, collation: RelCollation, offset: RexNode, fetch: RexNode) extends skeleton.Sort[Operator](input, collation, offset, fetch) with Operator {
-  val (ndiscarded :Int, nfetch :Int) = (evalLiteral(offset), evalLiteral(fetch))
+  var ndiscarded :Int = offset match {
+    case null  => 0
+    case _ => evalLiteral(offset).asInstanceOf[Int]
+  }
+
+  var nfetch :Int = fetch match {
+    case null  => Int.MaxValue
+    case _ => evalLiteral(fetch).asInstanceOf[Int]
+  }
   var data : SortedSet[Wrapper] = SortedSet()
   var it :Iterator[Wrapper]= data.iterator
   override def open(): Unit = {
-    for(tuple <-input.iterator){
+    for(tuple <-input.iterator.toList.drop(ndiscarded).take(nfetch)){
+      println(tuple)
       data+= Wrapper(tuple, collation)
     }
+    println("DATA")
+    println(data)
     it = data.iterator
 
   }
 
   override def next(): Tuple = {
-    if(it.hasNext){
-      it.next().getTuple
+    if(it.hasNext ){
+      val t = it.next().getTuple
+      t
     }else {
       null
     }

@@ -14,7 +14,9 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
     val v = input.next()
     v match {
       case t: Tuple => e(t) match {
-        case true => t
+        case true =>
+
+          t
         case _ => next()
       }
       case null => null

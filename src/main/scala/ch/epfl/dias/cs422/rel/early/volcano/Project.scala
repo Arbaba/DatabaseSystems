@@ -14,8 +14,12 @@ class Project protected (input: Operator, projects: java.util.List[_ <: RexNode]
   lazy val evaluator: Tuple => Tuple = eval(projects.asScala.toIndexedSeq, input.getRowType)
 
   override def next(): Tuple = input.next() match {
-    case null => null
-    case x => evaluator(x)
+    case null =>
+      println("projection over")
+      null
+    case x =>
+      println("Project: " + x + " " + evaluator(x))
+      evaluator(x)
   }
 
   override def close(): Unit = input.close()
