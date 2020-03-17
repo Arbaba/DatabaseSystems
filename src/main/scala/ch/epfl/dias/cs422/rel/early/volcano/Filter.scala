@@ -13,13 +13,15 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
   override def next(): Tuple =  {
     val v = input.next()
     v match {
-      case t: Tuple => e(t) match {
+      case null =>
+        null
+      case t => e(t) match {
         case true =>
-
           t
-        case _ => next()
+        case _ =>
+          next()
       }
-      case null => null
+
     }
   }
 

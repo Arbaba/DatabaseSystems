@@ -4,11 +4,13 @@ import ch.epfl.dias.cs422.helpers.builder.skeleton
 import ch.epfl.dias.cs422.helpers.rel.RelOperator.Tuple
 import ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
 import org.apache.calcite.rex.RexNode
+
+import scala.annotation.tailrec
 import scala.collection.mutable.Map
 class Join(left: Operator,
            right: Operator,
            condition: RexNode) extends skeleton.Join[Operator](left, right, condition) with Operator {
-  val hashTable : Map[Int, Tuple]= Map()
+  val hashTable : Map[Int, List[Tuple]]= Map()
   var rindex :Int = 0
   val leftKeys = getLeftKeys
   var rightKeys = getRightKeys
@@ -18,27 +20,52 @@ class Join(left: Operator,
 
   override def open(): Unit = {
 
-    left.open()
-    for(l <-left.iterator ){
-      hashTable += tupleHash(l, getLeftKeys) -> l
+    //left.open()
+    println("open" + hashTable.size)
+    var i = 0
+    val data = left.iterator.toList
+    for(l <-data){
+      i += 1
+      println(i)
+      hashTable.get(tupleHash(l, getLeftKeys)) match {
+        case Some(list) =>hashTable += tupleHash(l, getLeftKeys) -> (l :: list)
+        case None =>      hashTable += tupleHash(l, getLeftKeys) -> List(l)
+
+      }
     }
-    println(hashTable)
+    //println(hashTable)
     right.open()
   }
-
+  var bufferedResult : Seq[Tuple] = IndexedSeq()
+  var currentRight : Tuple = IndexedSeq()
   override def next(): Tuple = {
-    right.next() match {
-      case null =>
-        println("close")
+    @tailrec
+    def tailrecNext(): Any = {
+      right.next() match {
+        case null =>
 
-        null
-      case r =>
-        hashTable.get(tupleHash(r, rightKeys)) match {
-          case Some(l) =>
-            println("join")
-            l ++ r
-          case _ => next()
-        }
+          null
+        case r =>
+          hashTable.get(tupleHash(r, rightKeys)) match {
+            case Some(tuples) =>
+              bufferedResult = tuples
+              currentRight = r
+            case _ =>
+              println(r)
+              tailrecNext()
+          }
+      }
+    }
+
+    bufferedResult match {
+      case Seq() => tailrecNext() match {
+        case null => null
+        case _  => next()
+      }
+      case Seq(head, tail@_*) =>
+        val  tmp = head ++ currentRight
+        bufferedResult = tail
+        tmp
     }
 
   }
