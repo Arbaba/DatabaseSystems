@@ -9,7 +9,7 @@ import scala.collection.mutable.Map
 
 class Join(left: Operator, right: Operator, condition: RexNode) extends skeleton.Join[Operator](left, right, condition) with Operator {
   override def execute(): IndexedSeq[Column] = {
-
+    println(condition.toString())
     def tupleKeys(tuple: Tuple, keys: IndexedSeq[Int]) =  for(k <- keys)yield tuple(k)
     def tupleHash(tuple: Tuple, keys: IndexedSeq[Int]) =  tupleKeys(tuple, keys).hashCode()
     val hashTable : Map[Int, IndexedSeq[Tuple]]= Map()
@@ -26,7 +26,9 @@ class Join(left: Operator, right: Operator, condition: RexNode) extends skeleton
     if(tmpl.isEmpty || tmpr.isEmpty){
       IndexedSeq()
     }else {
+      println("l")
       val ldata = asRows(tmpl)
+      println("r")
       var rdata = asRows(tmpr)
       for(l <-ldata ){
         val key = tupleHash(l, getLeftKeys)
@@ -35,13 +37,13 @@ class Join(left: Operator, right: Operator, condition: RexNode) extends skeleton
           case None => hashTable += key -> IndexedSeq(l)
         }
       }
-      val join = for(r <- rdata; tuples <- hashTable.get(tupleHash(r, rightKeys))) yield  tuples.map{case (list)=> list ++ r}.flatten
+      val join = for(r <- rdata; tuples <- hashTable.get(tupleHash(r, rightKeys))) yield  tuples.map{case (list)=> list ++ r}
 
       if(join.isEmpty){
         IndexedSeq()
 
       }else {
-        asCols(join)
+        asCols(join.flatten)
       }
     }
 

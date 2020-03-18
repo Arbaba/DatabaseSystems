@@ -38,8 +38,8 @@ class Scan protected(cluster: RelOptCluster, traitSet: RelTraitSet, table: RelOp
           val tuplesperpage = pax.getPAXPage(0)(0).length
           val nbPages = Math.ceil(pax.getRowCount.toFloat / tuplesperpage).toInt
           println( tuplesperpage * nbPages  + " " + pax.getRowCount + " "+ table.getRowCount + " "+ tuplesperpage)
-          val t = for(col <-  0 until ncols) yield {(for(pageidx <- 0 until nbPages) yield pax.getPAXPage(pageidx)(col)).reduce(_ ++ _)}
-          t
+          for(col <-  0 until ncols) yield {(for(pageidx <- 0 until nbPages) yield pax.getPAXPage(pageidx)(col)).reduce(_ ++ _)}
+
         }
 
     }

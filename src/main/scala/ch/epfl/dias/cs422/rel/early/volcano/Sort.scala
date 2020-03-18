@@ -76,4 +76,3 @@ class Sort protected (input: Operator, collation: RelCollation, offset: RexNode,
   override def close(): Unit = input.close()
 }
 
-

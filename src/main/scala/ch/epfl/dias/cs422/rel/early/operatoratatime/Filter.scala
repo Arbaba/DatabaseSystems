@@ -7,13 +7,15 @@ import org.apache.calcite.rex.RexNode
 
 class Filter protected(input: Operator, condition: RexNode) extends skeleton.Filter[Operator](input, condition) with Operator {
   override def execute(): IndexedSeq[Column] = {
-
     lazy val e: Tuple => Any = eval(condition, input.getRowType)
     val ncols = input.getRowType.getFieldList().size()
     val data = input.execute()
     if(data.length == 0){ IndexedSeq()
     }else{
       val nrows = data(0).length
+      println(condition.toString())
+
+      println("r ", getTuple(data, 0))
       val rowsToKeep = for(row <- 0 until nrows;   if(e(getTuple(data, row)).asInstanceOf[Boolean]))   yield row
       val t = for(row <- rowsToKeep) yield getTuple(data, row)
       if(t.length > 0){
