@@ -35,8 +35,6 @@ class Aggregate protected (input: Operator,
       processed = IndexedSeq(for(call <- aggCalls) yield {data.init.foldLeft(call.getArgument(data.last))((acc, tuple) => call.reduce(acc, call.getArgument(tuple)))})
 
     }
-  //  println("aggre")
-  //println(processed)
   }
 
   override def next(): Tuple = {

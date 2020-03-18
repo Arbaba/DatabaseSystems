@@ -14,9 +14,22 @@ class Filter protected(input: Operator, condition: RexNode) extends skeleton.Fil
     if(data.length == 0){ IndexedSeq()
     }else{
       val nrows = data(0).length
-      val rowsToKeep = for(row <- 0 until nrows;  rdata = (0 until ncols).map{col => data(row)(col)} if(e(rdata).asInstanceOf[Boolean]))   yield row
-      for(row <- rowsToKeep) yield data(row)
+      val rowsToKeep = for(row <- 0 until nrows;   if(e(getTuple(data, row)).asInstanceOf[Boolean]))   yield row
+      val t = for(row <- rowsToKeep) yield getTuple(data, row)
+      if(t.length > 0){
+        println(t)
+        asCols(t)
+      }else {
+        IndexedSeq()
+      }
+
     }
 
+
   }
+  implicit def anyflattener[A](a: A) : Iterable[A] = Some(a)
+  def asCols(d: IndexedSeq[Tuple]) = for (col <- (0 until d(0).length)) yield ((0 until d.length).map(row => d(row)(col))).flatten
+
+  def getTuple(data: IndexedSeq[Column], i: Int): Tuple = data.map{col : Column => col(i)}.flatten
+
 }

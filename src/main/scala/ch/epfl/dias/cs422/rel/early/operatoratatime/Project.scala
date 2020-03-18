@@ -14,14 +14,19 @@ class Project protected(input: Operator, projects: util.List[_ <: RexNode], rowT
 
   override def execute(): IndexedSeq[Column] = {
 
+    implicit def anyflattener[A](a: A) : Iterable[A] = Some(a)
 
-    def asRows(d: IndexedSeq[Column]) = for(row <- (0 until d.length)) yield (0 until d.length ).map(col => d(col)(row))
-    def asCols(d: IndexedSeq[Tuple]) = for(col <- (0 until d(0).length)) yield (0 until d.length ).map(row => d(row)(col))
+    def asRows(d: IndexedSeq[Column]) = for (row <- (0 until d(0).length)) yield ((0 until d.length).map(col => d(col)(row))).flatten
+
+    def asCols(d: IndexedSeq[Tuple]) = for (col <- (0 until d(0).length)) yield ((0 until d.length).map(row => d(row)(col))).flatten
+
     val data = input.execute()
     if(data.length == 0){
       IndexedSeq()
     }else {
-      asCols(asRows(data).filter( x => evaluator(x).asInstanceOf[Boolean]))
+      val rowed = asRows(data)
+      println("rowed " + rowed)
+      asCols(rowed.map( x => evaluator(x)))
 
     }
   }

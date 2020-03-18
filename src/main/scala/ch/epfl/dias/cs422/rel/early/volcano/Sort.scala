@@ -60,8 +60,6 @@ class Sort protected (input: Operator, collation: RelCollation, offset: RexNode,
       println(tuple)
       data+= Wrapper(tuple, collation)
     }
-    println("DATA")
-    println(data)
     it = data.iterator
 
   }

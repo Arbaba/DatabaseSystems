@@ -20,7 +20,6 @@ class Join(left: Operator,
 
   override def open(): Unit = {
 
-    //left.open()
     println("open" + hashTable.size)
     var i = 0
     val data = left.iterator.toList
@@ -33,7 +32,6 @@ class Join(left: Operator,
 
       }
     }
-    //println(hashTable)
     right.open()
   }
   var bufferedResult : Seq[Tuple] = IndexedSeq()

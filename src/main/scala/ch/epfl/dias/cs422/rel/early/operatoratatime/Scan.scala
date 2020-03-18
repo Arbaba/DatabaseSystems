@@ -10,13 +10,16 @@ class Scan protected(cluster: RelOptCluster, traitSet: RelTraitSet, table: RelOp
   override def execute(): IndexedSeq[Column] = {
     val store = tableToStore(table.unwrap(classOf[ScannableTable]))
     val ncols = table.getColumnStrategies.size()
-    def asRows(d: IndexedSeq[Column]) = for(row <- (0 until d(0).length)) yield (0 until d.length ).map(col => d(col)(row))
-    def asCols(d: IndexedSeq[Tuple]) = for(col <- (0 until d(0).length)) yield (0 until d.length ).map(row => d(row)(col))
+    implicit def anyflattener[A](a: A) : Iterable[A] = Some(a)
+
+    def asRows(d: IndexedSeq[Column]) = for (row <- (0 until d(0).length)) yield ((0 until d.length).map(col => d(col)(row))).flatten
+
+    def asCols(d: IndexedSeq[Tuple]) = for (col <- (0 until d(0).length)) yield ((0 until d.length).map(row => d(row)(col))).flatten
     store match  {
       case rows: RowStore =>
         if(rows.getRowCount == 0){ IndexedSeq()
         }else{
-          val allRows = for(i <- 1 until rows.getRowCount.toInt )yield rows.getRow(i)
+          val allRows = for(i <- 0 until rows.getRowCount.toInt )yield rows.getRow(i)
           asCols(allRows)
         }
 
@@ -33,8 +36,10 @@ class Scan protected(cluster: RelOptCluster, traitSet: RelTraitSet, table: RelOp
           IndexedSeq()
         }else {
           val tuplesperpage = pax.getPAXPage(0)(0).length
-
-          for(col <-  0 until ncols) yield {for(row <- 0 until pax.getRowCount.toInt) yield pax.getPAXPage(row / tuplesperpage)(col)}
+          val nbPages = Math.ceil(pax.getRowCount.toFloat / tuplesperpage).toInt
+          println( tuplesperpage * nbPages  + " " + pax.getRowCount + " "+ table.getRowCount + " "+ tuplesperpage)
+          val t = for(col <-  0 until ncols) yield {(for(pageidx <- 0 until nbPages) yield pax.getPAXPage(pageidx)(col)).reduce(_ ++ _)}
+          t
         }
 
     }
