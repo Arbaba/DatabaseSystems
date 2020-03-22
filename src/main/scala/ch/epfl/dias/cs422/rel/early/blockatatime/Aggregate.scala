@@ -1,7 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.blockatatime
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.Block
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{Block, Elem, Tuple}
 import ch.epfl.dias.cs422.helpers.rel.early.blockatatime.Operator
 import ch.epfl.dias.cs422.helpers.rex.AggregateCall
 import org.apache.calcite.util.ImmutableBitSet
@@ -9,9 +9,46 @@ import org.apache.calcite.util.ImmutableBitSet
 class Aggregate protected (input: Operator,
                            groupSet: ImmutableBitSet,
                            aggCalls: List[AggregateCall]) extends skeleton.Aggregate[Operator](input, groupSet, aggCalls) with Operator {
-  override def open(): Unit = ???
+  var data :IndexedSeq[Tuple] = IndexedSeq()
+  var count = 0
+  var processed :IndexedSeq[List[Any]]= IndexedSeq()
+  val groupsIndexes = for( i <- (0 until groupSet.length()) if groupSet.get(i))yield i
+  var buffer = new Buffer(blockSize)
 
-  override def next(): Block = ???
+  override def open(): Unit = {
+    data =  input.iterator.toIndexedSeq.flatten
 
-  override def close(): Unit = ???
+    val groupedBy: Map[IndexedSeq[Elem], IndexedSeq[Tuple]] =data.groupBy(tuple => groupsIndexes.map{ i => tuple(i)})
+    if(data.length == 0 && groupsIndexes.length == 0){
+      processed = IndexedSeq(for(call <- aggCalls) yield {
+        call.emptyValue
+      })
+    }else if (data.length == 0){
+      IndexedSeq()
+    } else if (groupsIndexes.length != 0) {
+
+      processed = groupedBy.map{case (k :IndexedSeq[Any],tuples :IndexedSeq[Tuple]) =>
+        (k, k ++ (for(call <- aggCalls) yield { tuples.init.foldLeft(call.getArgument(tuples.last))((acc, tuple) => call.reduce(acc, call.getArgument(tuple)))
+        }))
+      }.values.map{case v : IndexedSeq[Any] => v.toList}.toIndexedSeq
+
+    }else {
+      processed = IndexedSeq(for(call <- aggCalls) yield {data.init.foldLeft(call.getArgument(data.last))((acc, tuple) => call.reduce(acc, call.getArgument(tuple)))})
+
+    }
+  }
+
+
+  override def next(): Block = {
+    if(count >= processed.length){
+      null
+    }else {
+
+      val tmp = processed.slice(count, count + blockSize).map(x => x.toIndexedSeq)
+      count += blockSize
+      tmp
+    }
+  }
+
+  override def close(): Unit = input.close()
 }

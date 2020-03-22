@@ -7,7 +7,7 @@ import ch.epfl.dias.cs422.helpers.rel.late.operatoratatime.Operator
 import ch.epfl.dias.cs422.helpers.store.{ScannableTable, Store}
 import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
 
-class Scan protected(cluster: RelOptCluster, traitSet: RelTraitSet, table: RelOptTable, tableToStore: ScannableTable => Store) extends skeleton.Scan[Operator](cluster, traitSet, table) with Operator {
+class Scan protected(cluster: RelOptCluster, traitSet: RelTraitSet, table: RelOptTable, tableToStore: ScannableTable => Store) extends skeleton.Scan[Operator](cluster, traitSet, table) with Operator {-
   override def execute(): IndexedSeq[Column] = {
     val store = tableToStore(table.unwrap(classOf[ScannableTable]))
     ???
