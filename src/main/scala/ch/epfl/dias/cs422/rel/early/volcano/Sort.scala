@@ -57,7 +57,6 @@ class Sort protected (input: Operator, collation: RelCollation, offset: RexNode,
   var it :Iterator[Wrapper]= data.iterator
   override def open(): Unit = {
     for(tuple <-input.iterator.toList.drop(ndiscarded).take(nfetch)){
-      println(tuple)
       data+= Wrapper(tuple, collation)
     }
     it = data.iterator

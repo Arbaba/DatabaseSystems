@@ -20,12 +20,10 @@ class Join(left: Operator,
 
   override def open(): Unit = {
 
-    println("open" + hashTable.size)
     var i = 0
     val data = left.iterator.toList
     for(l <-data){
       i += 1
-      println(i)
       hashTable.get(tupleHash(l, getLeftKeys)) match {
         case Some(list) =>hashTable += tupleHash(l, getLeftKeys) -> (l :: list)
         case None =>      hashTable += tupleHash(l, getLeftKeys) -> List(l)
@@ -49,7 +47,6 @@ class Join(left: Operator,
               bufferedResult = tuples
               currentRight = r
             case _ =>
-              println(r)
               tailrecNext()
           }
       }

@@ -13,13 +13,10 @@ class Filter protected(input: Operator, condition: RexNode) extends skeleton.Fil
     if(data.length == 0){ IndexedSeq()
     }else{
       val nrows = data(0).length
-      println(condition.toString())
 
-      println("r ", getTuple(data, 0))
       val rowsToKeep = for(row <- 0 until nrows;   if(e(getTuple(data, row)).asInstanceOf[Boolean]))   yield row
       val t = for(row <- rowsToKeep) yield getTuple(data, row)
       if(t.length > 0){
-        println(t)
         asCols(t)
       }else {
         IndexedSeq()

@@ -24,7 +24,7 @@ class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, 
       case _ => evalLiteral(fetch).asInstanceOf[Int]
     }
 
-    (0 until input.execute().drop(ndiscarded).take(nfetch).length).map(x => IndexedSeq(x.toLong))
+    (0 until vids.drop(ndiscarded).take(nfetch).length).map(x => IndexedSeq(x.toLong))
   }
   def sort(data: IndexedSeq[Tuple], sorters : Seq[RelFieldCollation]): IndexedSeq[Column] = {
     data match {
@@ -62,9 +62,7 @@ class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, 
   }
 
   private lazy val evals = {
-    println("DATA " + input.execute())
-
-    val data = sort(input.execute().map(x => input.evaluators()(x)), collation.getFieldCollations.asScala.toSeq)
+    val data = sort(vids.map(x => input.evaluators()(x)), collation.getFieldCollations.asScala.toSeq)
     new LazyEvaluatorAccess((0 until input.getRowType.getFieldCount).map{col => row: Long =>
       data(row.toInt)(col)
     }.toList)

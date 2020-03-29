@@ -28,10 +28,7 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
   }*/
   override def next(): Block = {
     val data :Unit => Block = { _ =>
-      val x = input.next()
-      println("Filter " + condition + " "+  x)
-      x
-
+      input.next
     }
     val tuples = {
       buffer.fillBuffer(data, tuples => tuples.filter(x => e(x).asInstanceOf[Boolean]))

@@ -8,6 +8,8 @@ import ch.epfl.dias.cs422.helpers.rex.AggregateCall
 import org.apache.calcite.util.ImmutableBitSet
 
 class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: List[AggregateCall]) extends skeleton.Aggregate[Operator](input, groupSet, aggCalls) with Operator {
+  val vids = input.execute()
+
   override def execute(): IndexedSeq[Column] = {
     if(groupSet.cardinality() == 0 ){
       IndexedSeq(IndexedSeq(0.toLong))
@@ -22,7 +24,6 @@ class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: 
   }
 
   private lazy val evals = {
-    val vids = input.execute()
     if (vids.length == 0 && groupSet.cardinality() == 0) {
       val fs = for (call <- aggCalls) yield {
         _ :Long => call.emptyValue
@@ -30,7 +31,7 @@ class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: 
       new LazyEvaluatorAccess(fs)
     }else if(groupSet.cardinality() > 0 ) {
       val groupsIndexes = for (i <- (0 until groupSet.length()) if groupSet.get(i)) yield i
-      val groupedBy: Map[IndexedSeq[Elem], IndexedSeq[Tuple]] = input.execute().map(x => input.evaluators()(x)).groupBy(tuple => groupsIndexes.map { i => tuple(i) })
+      val groupedBy: Map[IndexedSeq[Elem], IndexedSeq[Tuple]] = vids.map(x => input.evaluators()(x)).groupBy(tuple => groupsIndexes.map { i => tuple(i) })
       val groups : IndexedSeq[IndexedSeq[Tuple]] = groupedBy.values.toIndexedSeq
 
       val fs = for (call <- aggCalls) yield {
@@ -41,11 +42,9 @@ class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: 
       }
       new LazyEvaluatorAccess((normalCols ++ fs).toList)
     }else {
-      val data :IndexedSeq[Tuple] =  input.execute().map(x => input.evaluators()(x))
+      val data :IndexedSeq[Tuple] =  vids.map(x => input.evaluators()(x))
       val fs = for (call <- aggCalls) yield {
         row :Long =>{
-          println(row)
-
           data.init.foldLeft(call.getArgument(data.last))((acc, tuple) => call.reduce(acc, call.getArgument(tuple)))
         }
       }

@@ -9,7 +9,6 @@ import scala.collection.mutable.Map
 
 class Join(left: Operator, right: Operator, condition: RexNode) extends skeleton.Join[Operator](left, right, condition) with Operator {
   override def execute(): IndexedSeq[Column] = {
-    println(condition.toString())
     def tupleKeys(tuple: Tuple, keys: IndexedSeq[Int]) =  for(k <- keys)yield tuple(k)
     def tupleHash(tuple: Tuple, keys: IndexedSeq[Int]) =  tupleKeys(tuple, keys).hashCode()
     val hashTable : Map[Int, IndexedSeq[Tuple]]= Map()

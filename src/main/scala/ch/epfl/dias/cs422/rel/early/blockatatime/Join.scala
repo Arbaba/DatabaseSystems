@@ -27,7 +27,6 @@ class Join(left: Operator,
     val data = left.iterator.toList.flatten
     for(l <-data){
       i += 1
-      println("Join " + condition + " " + l )
       hashTable.get(tupleHash(l, getLeftKeys)) match {
         case Some(list) =>hashTable += tupleHash(l, getLeftKeys) -> (l :: list)
         case None =>      hashTable += tupleHash(l, getLeftKeys) -> List(l)
@@ -44,7 +43,6 @@ class Join(left: Operator,
     }
     buffer.fillBuffer(fetchNext, i => processRightBlock(i))
     val data = buffer.flush()
-    println("buff " + data)
 
     if(data.isEmpty){
       null
@@ -73,9 +71,6 @@ class Join(left: Operator,
 
           }
         }).flatten
-        println("rs " + t)
-
-        println(condition + " " +t)
         t
 
     }

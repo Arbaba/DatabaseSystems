@@ -25,7 +25,6 @@ class Project protected(input: Operator, projects: util.List[_ <: RexNode], rowT
       IndexedSeq()
     }else {
       val rowed = asRows(data)
-      println("rowed " + rowed)
       asCols(rowed.map( x => evaluator(x)))
 
     }

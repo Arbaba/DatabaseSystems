@@ -22,7 +22,6 @@ class Project protected (input: Operator, projects: util.List[_ <: RexNode], row
   override def next(): Block =  {
       buffer.fillBuffer({_ => input.next()}, tuples => tuples.map(t => evaluator(t)))
       val data = buffer.flush()
-    println("project " + data)
     if(data.isEmpty){
       null
     }else{
