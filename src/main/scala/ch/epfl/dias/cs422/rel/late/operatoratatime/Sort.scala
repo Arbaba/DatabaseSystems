@@ -12,6 +12,8 @@ import scala.jdk.CollectionConverters._
 
 class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, fetch: RexNode) extends skeleton.Sort[Operator](input, collation, offset, fetch) with Operator {
   val vids : IndexedSeq[Column] =input.execute()
+  val data = sort(vids.map(x => input.evaluators()(x)), collation.getFieldCollations.asScala.toSeq)
+
   override def execute(): IndexedSeq[Column] = {
 
     var ndiscarded :Int = offset match {
@@ -62,7 +64,6 @@ class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, 
   }
 
   private lazy val evals = {
-    val data = sort(vids.map(x => input.evaluators()(x)), collation.getFieldCollations.asScala.toSeq)
     new LazyEvaluatorAccess((0 until input.getRowType.getFieldCount).map{col => row: Long =>
       data(row.toInt)(col)
     }.toList)
