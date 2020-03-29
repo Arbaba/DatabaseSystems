@@ -7,6 +7,7 @@ import ch.epfl.dias.cs422.helpers.rel.late.operatoratatime.Operator
 import org.apache.calcite.rel.RelFieldCollation.Direction
 import org.apache.calcite.rel.{RelCollation, RelFieldCollation}
 import org.apache.calcite.rex.RexNode
+
 import scala.jdk.CollectionConverters._
 
 class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, fetch: RexNode) extends skeleton.Sort[Operator](input, collation, offset, fetch) with Operator {
@@ -46,13 +47,17 @@ class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, 
       case Seq(head: RelFieldCollation, tail@_*) =>
         val idx = head.getFieldIndex()
         val (x, y) = (a(idx).asInstanceOf[Comparable[Any]], b(idx).asInstanceOf[Comparable[Any]])
-        head.direction match {
+        val cmp = head.direction match {
           case Direction.ASCENDING =>
             x.compareTo(y)
+
           case Direction.DESCENDING =>
             y.compareTo(x)
           case _ => throw new Exception("Unhandled comparison direction")
         }
+        if(cmp == 0)
+          compare(a,b, sorters.tail)
+        else cmp
     }
   }
 
