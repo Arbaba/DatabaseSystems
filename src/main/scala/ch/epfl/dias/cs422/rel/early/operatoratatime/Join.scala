@@ -26,9 +26,7 @@ class Join(left: Operator, right: Operator, condition: RexNode) extends skeleton
     if(tmpl.isEmpty || tmpr.isEmpty){
       IndexedSeq()
     }else {
-      println("l")
       val ldata = asRows(tmpl)
-      println("r")
       var rdata = asRows(tmpr)
       for(l <-ldata ){
         val key = tupleHash(l, getLeftKeys)
