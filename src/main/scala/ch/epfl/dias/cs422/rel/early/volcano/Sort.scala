@@ -22,14 +22,10 @@ class Wrapper (tuple: Tuple, collation: RelCollation) extends Ordered[Wrapper]{
       val idx = head.getFieldIndex()
       val (a, b) = (get(idx).asInstanceOf[Comparable[Any]], that.get(idx).asInstanceOf[Comparable[Any]])
       (head.direction match {
-        case Direction.ASCENDING =>
+        case Direction.ASCENDING | Direction.STRICTLY_ASCENDING =>
           a.compareTo(b)
-        case Direction.DESCENDING =>
+        case Direction.DESCENDING | Direction.STRICTLY_DESCENDING =>
           b.compareTo(a)
-        case Direction.STRICTLY_DESCENDING =>
-          ???
-        case Direction.STRICTLY_ASCENDING =>
-          ???
         case _ => throw new Exception("Unknown sorting direction")
       }) match {
         case 0 => recCompare(that, tail)

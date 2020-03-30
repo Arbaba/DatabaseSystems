@@ -8,9 +8,7 @@ import org.apache.calcite.util.ImmutableBitSet
 
 class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: List[AggregateCall]) extends skeleton.Aggregate[Operator](input, groupSet, aggCalls) with Operator {
 
-  def asRows(d: IndexedSeq[Column]) = for (row <- (0 until d(0).length)) yield ((0 until d.length).map(col => d(col)(row))).flatten
 
-  def asCols(d: IndexedSeq[Tuple]) = for (col <- (0 until d(0).length)) yield ((0 until d.length).map(row => d(row)(col))).flatten
   override def execute(): IndexedSeq[Column] = {
     val data = input.iterator.toIndexedSeq
 
@@ -21,10 +19,6 @@ class Aggregate protected(input: Operator, groupSet: ImmutableBitSet, aggCalls: 
     } else if (data.length == 0) {
       IndexedSeq()
     } else if (groupSet.cardinality() > 0) {
-      /*
-      val idxGroups = (0 until data(0).length).groupBy(i => groupSet.asList().asScala.map(group => getTuple(data, group)(i)))
-      idxGroups.values.map(g => aggrGroup(g.map(i => getTuple(data, i)))).reduce((aggra, aggrb) => )
-      */
       val groupsIndexes = for (i <- (0 until groupSet.length()) if groupSet.get(i)) yield i
       val rowed = asRows(data)
       val groupedBy: Map[IndexedSeq[Elem], IndexedSeq[Tuple]] = rowed.groupBy(tuple => groupsIndexes.map { i => tuple(i) })

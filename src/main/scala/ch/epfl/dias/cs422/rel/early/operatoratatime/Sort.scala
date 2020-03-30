@@ -44,10 +44,10 @@ class Sort protected(input: Operator, collation: RelCollation, offset: RexNode, 
         val idx = head.getFieldIndex()
         val (x, y) = (a(idx).asInstanceOf[Comparable[Any]], b(idx).asInstanceOf[Comparable[Any]])
         val cmp = head.direction match {
-          case Direction.ASCENDING =>
+          case Direction.ASCENDING | Direction.STRICTLY_ASCENDING =>
             x.compareTo(y)
 
-          case Direction.DESCENDING =>
+          case Direction.DESCENDING | Direction.STRICTLY_DESCENDING =>
             y.compareTo(x)
           case _ => throw new Exception("Unhandled comparison direction")
         }

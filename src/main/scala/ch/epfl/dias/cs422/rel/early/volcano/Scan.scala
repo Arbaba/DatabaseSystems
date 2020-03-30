@@ -11,19 +11,7 @@ class Scan protected (cluster: RelOptCluster, traitSet: RelTraitSet, table: RelO
   protected var index: Int = 0
   protected var maxidx : Long = 0.toLong
 
-  /*
 
-  object RelOperator{
-  final type Elem = Any
-  final type Tuple = IndexedSeq[Elem]
-  final type Column = IndexedSeq[Elem]
-  final type Block = IndexedSeq[Tuple]
-  final type PAXMinipage = IndexedSeq[Elem] // like a column but with maximum length of X elements
-  final type PAXPage = IndexedSeq[PAXMinipage]
-
-  final val blockSize: Int = 4
-}
-   */
   override def open(): Unit = {
     index = 0
     maxidx = scannable.getRowCount

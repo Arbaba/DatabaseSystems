@@ -13,19 +13,7 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
     buffer = new Buffer(blockSize)
     input.open()
   }
-/*
-  def fillBuffer(): Unit = {
-    if(buffer.length <= blockSize){
-      val v = input.next()
-      v match {
-        case null =>
 
-        case t =>
-          register(t.filter(x => e(x).asInstanceOf[Boolean]))
-          fillBuffer()
-      }
-    }
-  }*/
   override def next(): Block = {
     val data :Unit => Block = { _ =>
       input.next
@@ -41,7 +29,6 @@ class Filter protected (input: Operator, condition: RexNode) extends skeleton.Fi
     }else{
       null
     }
-    //input.next()
   }
 
   override def close(): Unit = input.close()
